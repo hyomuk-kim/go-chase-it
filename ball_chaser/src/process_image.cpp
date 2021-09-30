@@ -26,7 +26,7 @@ void process_image_callback(const sensor_msgs::Image img) {
   int left_line_pidx = num_col_pixel / 3;
   int right_line_pidx = left_line_pidx * 2;
 
-  int ball_cidx = -1;
+  int ball_pidx = -1;
 
   for (int row = 0; row < img.height; row++) {
     for (int pix = 0; pix < num_col_pixel; pix++) {
