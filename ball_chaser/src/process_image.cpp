@@ -17,32 +17,40 @@ void drive_robot(float lin_x, float ang_z) {
 
 void process_image_callback(const sensor_msgs::Image img) {
   int white_pixel = 255;
+  int subpix_r = 0, subpix_g = 0, subpix_b = 0;
+  int num_col_pixel = img.step / 3;
+
   float req_lin_x = 0;
   float req_ang_z = 0;
 
-  int left_line_cidx = img.step / 3;
-  int right_line_cidx = left_line_cidx * 2;
+  int left_line_pidx = num_col_pixel / 3;
+  int right_line_pidx = left_line_pidx * 2;
 
   int ball_cidx = -1;
 
   for (int row = 0; row < img.height; row++) {
-    for (int col = 0; col < img.step; col++) {
-      if (img.data[img.step * row + col] == white_pixel) {
-        ball_cidx = col;
+    for (int pix = 0; pix < num_col_pixel; pix++) {
+      subpix_r = pix * 3;
+      subpix_g = pix * 3 + 1;
+      subpix_b = pix * 3 + 2;
+      if (img.data[img.step * row + subpix_r] == white_pixel &&
+          img.data[img.step * row + subpix_g] == white_pixel &&
+          img.data[img.step * row + subpix_b] == white_pixel) {
+        ball_pidx = pix;
         break;
       }
     }
   }
 
-  if (0 <= ball_cidx && ball_cidx <= left_line_cidx) {
+  if (0 <= ball_pidx && ball_pidx <= left_line_pidx) {
     req_lin_x = 0.3;
     req_ang_z = 0.5;
   }
-  else if (left_line_cidx < ball_cidx && ball_cidx < right_line_cidx) {
+  else if (left_line_pidx < ball_pidx && ball_pidx < right_line_pidx) {
     req_lin_x = 0.3;
     req_ang_z = 0.0;
   }
-  else if (right_line_cidx <= ball_cidx && ball_cidx < img.step) {
+  else if (right_line_pidx <= ball_pidx && ball_pidx < num_col_pixel) {
     req_lin_x = 0.3;
     req_ang_z = -0.5;
   }
